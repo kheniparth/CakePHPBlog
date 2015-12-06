@@ -18,10 +18,7 @@ class CommentsTable extends Table
 			'foreignKey' => 'article_id',
 			]);
 		
-		$this->hasMany('Articles', [
-            'foreignKey' => 'user_id',
-            'dependent' => true,
-        ]);    
+		 
     }
 }
 

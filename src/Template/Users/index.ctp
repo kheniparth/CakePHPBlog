@@ -5,79 +5,24 @@
 	
 	<div class="container-fluid">        
 		<div class="row">
-        <?= $this->Html->link('Add Article', ['action' => 'add']) ?>
+			<div class="articles">
+        		<?= $this->Html->link('Articles', ['action' => 'posts']) ?>
+			</div>
+			<?php 
+				if($this->request->session()->read('Auth.User.role') == 'admin'){ 
+			?>
+					<div class="users">
+						<?= $this->Html->link('Users', ['action' => 'all']) ?>
+					</div>
+					<div class="comments">
+						<?= $this->Html->link('Comments', ['controller' => 'Comments', 'action' => 'index']) ?>
+					</div>
+					<div class="tags">
+						<?= $this->Html->link('Tags', ['controller' => 'Tags','action' => 'index']) ?>
+					</div>	
+			<?php } ?>
+			
          <?= $this->Html->link('Logout', ['action' => 'login']) ?>
-        <h1> Articles </h1>
-        <table>
-            <tr>
-                <th>name</th>
-                <th>email</th>
-                <th>username</th>
-                <th>role</th>
-            </tr>
-
-            <!-- Here is where we iterate through our $articles query object, printing out article info -->
-
-            <?php foreach ($Articles as $article): ?>
-            <tr>
-                <td>
-                    <?= $this->Html->link($article->title, ['action' => 'view', $article->id]) ?>       
-                </td>                
-                <td><?= $article->date ?></td>
-                <td><?= $this->Html->link($article->commentCount, ['action' => 'comments', $article->id]) ?> </td>
-                <td>
-                    <?= $this->Html->link('Edit', ['action' => 'edit', $article->id]) ?>       
-                </td>
-                <td>
-                    <?= $this->Form->postLink(
-                        'Delete',
-                        ['action' => 'delete', $article->id],
-                        ['confirm' => 'Are you sure?'])
-                    ?>
-                </td>
-                <td>
-                    
-                    <?php 
-//                       var_dump($article->publish);
-                        if($article->publish){
-                            echo $this->Form->postLink(
-                                'Draft',
-                                ['action' => 'draft', $article->id],
-                                ['confirm' => 'Are you sure?']);
-                        }else{
-                            echo $this->Form->postLink(
-                                'Publish',
-                                ['action' => 'publish', $article->id],
-                                ['confirm' => 'Are you sure?']);
-
-                        }
-    
-                    ?>
-                </td>
-                <td>
-                    
-                    <?php 
-//                       var_dump($article->publish);
-                        if($article->commentsAllowed){
-                            echo $this->Form->postLink(
-                                'Block',
-                                ['action' => 'block', $article->id],
-                                ['confirm' => 'Are you sure?']);
-                        }else{
-                            echo $this->Form->postLink(
-                                'Allow',
-                                ['action' => 'allow', $article->id],
-                                ['confirm' => 'Are you sure?']);
-
-                        }
-    
-                    ?>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        </table>
-        <div class="submitButton">
-            <?= $this->Html->link('Logout', ['action' => 'login']) ?>
-        </div>
-    </div>
+        
+		</div>
 </div>

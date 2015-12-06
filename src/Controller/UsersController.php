@@ -8,6 +8,8 @@ use Cake\Event\Event;
 class UsersController extends AppController
 {
 
+	
+	
     public function beforeFilter(Event $event)
 	{
 		parent::beforeFilter($event);
@@ -19,11 +21,14 @@ class UsersController extends AppController
 
 	public function posts()
     {
-		var_dump($this);
-//		$usersTable = TableRegistry::get('Users');
-//
-//		$articles = $usersTable->find('all', array('conditions' => array('id' => $id)));
-//		$this->set(compact('Articles'));
+
+		$user=$this->request->session()->read('Auth.User');
+		if($user['role'] == 'admin'){
+        $users = $this->Users->find('all')->contain(['Articles']);
+		}else{
+        $users = $this->Users->find('all', array('conditions' => array('id' => $user['id'])))->contain(['Articles']);
+		}
+        $this->set(compact('users'));
     }
 	
 	public function login()

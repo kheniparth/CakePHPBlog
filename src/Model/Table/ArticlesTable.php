@@ -11,6 +11,7 @@ class ArticlesTable extends Table {
     public function initialize(array $config)
     {
         $this->addBehavior('Timestamp');
+		$this->displayField('Value');
 
  		$this->hasMany('Comments', [
             'foreignKey' => 'article_id',
@@ -20,6 +21,28 @@ class ArticlesTable extends Table {
 		$this->belongsTo('Users', [
 			'foreignKey' => 'user_id',
 			]);
+		
+		$this->hasMany('ArticlesTags', [
+            'foreignKey' => 'article_id'
+        ]);
+		
+		
+//		$this->hasAndBelongsToMany = array(
+//        'Tags' => array(
+//            'className' => 'Tag',
+//            'joinTable' => 'articles_tags',
+//            'foreignKey' => 'article_id',
+//            'associationForeignKey' => 'tag_id'
+//        ),
+//    );   
+		
+		$this->hasMany('Tags', [
+            'joinTable' => 'articles_tags',
+            'foreignKey' => 'article_id',
+            'associationForeignKey' => 'tag_id'
+        ]);   
+		
+		
 	}
     
 	public function isOwnedBy($articleId, $userId)

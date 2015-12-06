@@ -29,13 +29,11 @@ class CommentsController extends AppController {
     
   public function index()
     {
+	  	$commentsTable = TableRegistry::get('Comments');
 
-//        $this->set(compact('articles'));
-//	  $comments = TableRegistry::get('Comments');
-        $comments = $comments->find('all')->contain('alias');
+        $comments = $commentsTable->find('all');
         $this->set(compact('comments'));
-
-    }
+  	}
 	
 	public function approveComment($id){
 		$commentsTable = TableRegistry::get('Comments');
@@ -44,7 +42,6 @@ class CommentsController extends AppController {
 		$comment->approved = true;
 		$commentsTable->save($comment);
 		$this->redirect($this->referer());
-//		return $this->redirect('/articles/comments/'.$id);
 	}
 	
 	public function disapproveComment($id){
@@ -54,6 +51,14 @@ class CommentsController extends AppController {
 		$comment->approved = false;
 		$commentsTable->save($comment);
 		$this->redirect($this->referer());
+	}
+   public function deleteComment($id){
+		$commentsTable = TableRegistry::get('Comments');
+		$comment = $commentsTable->get($id); // Return article with id 12
+	   if ($commentsTable->delete($comment)) {
+            $this->Flash->success(__('The Comment has been deleted.'));
+            return $this->redirect($this->referer());
+        }
 	}
    
 }

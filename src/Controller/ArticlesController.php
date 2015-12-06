@@ -22,7 +22,7 @@ class ArticlesController extends AppController
 		}
 
 		// The owner of an article can edit and delete it
-		if (in_array($this->request->action, ['edit', 'delete','view','admin'])) {
+		if (in_array($this->request->action, ['edit', 'delete'])) {
 			$articleId = (int)$this->request->params['pass'][0];
 			if ($this->Articles->isOwnedBy($articleId, $user['id'])) {
 				return true;
@@ -56,7 +56,7 @@ class ArticlesController extends AppController
         $Article = $this->Articles->get($id);
         if ($this->Articles->delete($Article)) {
             $this->Flash->success(__('The Article with id: {0} has been deleted.', h($id)));
-            return $this->redirect(['action' => 'admin']);
+            return $this->redirect($this->referer());
         }
     }
     
@@ -68,7 +68,7 @@ class ArticlesController extends AppController
         $Article['publish'] = "False";
         if ($this->Articles->save($Article)) {
             $this->Flash->success(__('The Article with id: {0} has been updated.', h($id)));
-            return $this->redirect(['action' => 'admin']);
+            return $this->redirect($this->referer());
         }
     }
     
@@ -80,7 +80,7 @@ class ArticlesController extends AppController
         $Article['publish'] = "True";
         if ($this->Articles->save($Article)) {
             $this->Flash->success(__('The Article with id: {0} has been updated.', h($id)));
-            return $this->redirect(['action' => 'admin']);
+            return $this->redirect($this->referer());
         }
     }
     
@@ -93,7 +93,7 @@ class ArticlesController extends AppController
         $Article['commentsAllowed'] = false;
         if ($articlesTable->save($Article)) {
             $this->Flash->success(__('The Article with id: {0} has been updated.', h($id)));
-            return $this->redirect($this->redirect($this->referer()));
+            return $this->redirect($this->referer());
         }
     }
     
@@ -115,7 +115,7 @@ class ArticlesController extends AppController
 //            print_r($login);
             if($login['username'] == 'admin' && $login['password'] == 'conestoga'){
                     $this->Flash->success(__('Successfully Logged In.'));
-                    return $this->redirect(['action' => 'admin']);
+                    return $this->redirect($this->referer());
                 }
             
             $this->Flash->error(__('Please Enter Right Credentials.'));
@@ -154,12 +154,56 @@ class ArticlesController extends AppController
 
     public function edit($id)
         {
-            $article = $this->Articles->get($id);
+			$tagsTable = TableRegistry::get('Tags');
+            $query = $this->Articles->Tags->find('list', [
+				'keyField' => 'id',
+				'valueField' => 'value'
+			]);
+			$tags = $query->toArray();
+			$this->set(compact('tags'));
+
+		
+			$articlestagsTable = TableRegistry::get('ArticlesTags');
+			$query = $articlestagsTable->find('all', array('conditions' => array('article_id' => $id)));
+//			$tempTags = $articlestagsTable->find('all', array(
+//				'conditions' => array('article_id' => $id), 
+//				[ 'keyField' => 'id','valueField' => 'tag_id']
+//			));
+			$selectedAllTags = $query->toArray();
+			$this->set(compact('selectedAllTags'));
+
+		
+			$articlesTable = TableRegistry::get('Articles');
+            $article = $articlesTable->get($id);
+		
+			$tempArticle = $this->request->data;
+			
             if ($this->request->is(['post', 'put'])) {
-                $this->Articles->patchEntity($article, $this->request->data);
-                if ($this->Articles->save($article)) {
+                $articlesTable->patchEntity($article, $this->request->data);
+				print_r($article);
+//				foreach($tempArticle['Tags'] as $tag):
+//					$query = $articlestagsTable->find('all')->where([
+//						'ArticlesTags.article_id' => $id,
+//						'ArticlesTags.tag_id' => $tag
+//					]);
+//					$t = $query->toArray();
+//					if(!empty($t)){
+//						print($tag."->".$id."pair found,");
+//					}else{
+//						$tuple = $articlestagsTable->newEntity();
+//						echo $tag." ".$id;
+//						$tuple->article_id= $id;
+//						$tuple->tag_id= $tag;					
+//						if($articlestagsTable->save($tuple)){
+//							 $this->Flash->success(__('Your tag pair has been saved.'));
+//						}
+//						$this->Flash->error(__('Unable to create relation of article and tag.'));
+//					}
+//				endforeach;
+																	  
+                if ($articlesTable->save($article)) {
                     $this->Flash->success(__('Your article has been updated.'));
-                    return $this->redirect(['action' => 'index']);
+                    return $this->redirect($this->referer());
                 }
                 $this->Flash->error(__('Unable to update your article.'));
             }
@@ -169,125 +213,58 @@ class ArticlesController extends AppController
 
     public function add()
     {
+
+		$now = Time::now();
+
+		$tagsTable = TableRegistry::get('Tags');
+		$articlestagsTable = TableRegistry::get('ArticlesTags');
+		$articlesTable = TableRegistry::get('Articles');
+		$count = $articlesTable->find('all');
+		$newArticleId = $count->last()->id +1;
+        $query = $this->Articles->Tags->find('list', [
+				'keyField' => 'id',
+				'valueField' => 'value'
+			]);
+			$tags = $query->toArray();
+			$this->set(compact('tags'));
+
+		
+		
         $article = $this->Articles->newEntity();
         if ($this->request->is('post')) {
             $tempArticle = $this->request->data;
             $article = $this->Articles->patchEntity($article, $this->request->data);
 			$article->user_id = $this->Auth->user('id');
-            if ($this->Articles->save($article)) {
-                $this->Flash->success(__('Your article has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('Unable to add your article.'));
+			$article->date = $now;
+			$tuple = $articlestagsTable->newEntity();
+			$flag = $articlestagsTable->findAllByArticleId($newArticleId);
+			$flagCount = $flag->count();
+			if($flagCount>0)
+			{
+//				print("flag found");
+			}else{
+//								print("flag not found");
+
+				foreach($tempArticle['Tags'] as $tag):
+						
+						$tuple->article_id= $newArticleId;
+						$tuple->tag_id= $tag;					
+						if($articlestagsTable->save($tuple)){
+							 $this->Flash->success(__('Your tag pair has been saved.'));
+						}
+						$this->Flash->error(__('Unable to create relation of article and tag.'));
+				endforeach;
+				
+				if ($this->Articles->save($article)) {
+					$this->Flash->success(__('Your article has been saved.'));
+					return $this->redirect($this->referer());
+				}
+				$this->Flash->error(__('Unable to add your article.'));
+			}
+			
+            
         }
         $this->set('article', $article);
     }
-//        $Articles = $this->Articles->find('all');
-//        $this->set(compact('Articles'));
-////        $Article = $this->Articles->newEntity();
-////        if ($this->request->is('post')) {
-//        $tempArticle = $this->request->data;
-//                if(empty($tempArticle['toppings1']) && empty($tempArticle['toppings2']))
-//                    {
-//                    $this->Flash->success(__('Please Select atleast 1 topping.'));
-//                    return $this->redirect(['action' => 'index']);
-//                }else{
-//                    if(empty($tempArticle['toppings1'])){
-//                        $toppings = $tempArticle['toppings2'];
-//                    }else if(empty($tempArticle['toppings2'])){
-//                        $toppings = $tempArticle['toppings1'];
-//                    }else{
-//                        $toppings = null;
-//                    }
-//
-//                     $toppingsCount=0;
-//                    if($toppings != null)
-//                    {
-//                    $toppingsCount = count($toppings);
-//                    $toppings = implode(",", $toppings);
-//                    }
-//                    $tempArticle['toppings'] = $toppings;
-//                    unset($tempArticle['toppings1']);
-//                    unset($tempArticle['toppings2']);
-//
-//                    $finalBill = 0;
-//                    $sizeCost = 0;
-//                    $toppingsCost = 0;
-//                    $crustCost = 0;
-//                    $taxValue = 1;
-//                    $tax = $tempArticle['province'];
-//                    switch($tax)
-//                    {
-//                        case "ontario":
-//                            $taxValue = 13;
-//                            break;
-//                        case "quebec":
-//                            $taxValue = 15;
-//                            break;
-//                        case "saskatchewan":
-//                            $taxValue = 10;
-//                            break;
-//                        case "alberta":
-//                            $taxValue = 5;
-//                            break;
-//                        default:
-//                            $taxValue = 1;
-//                            break;
-//                    }
-//
-//
-//                    $size = $tempArticle['size'];
-//                    switch($size)
-//                    {
-//                        case "small":
-//                            $sizeCost = 5;
-//                            break;
-//                        case "medium":
-//                            $sizeCost = 10;
-//                            break;
-//                        case "large":
-//                            $sizeCost = 15;
-//                            break;
-//                        case "extraLarge":
-//                            $sizeCost = 20;
-//                            break;
-//                        default:
-//                            $sizeCost = 0;
-//                            break;
-//                    }
-//
-//                    $crust = $tempArticle['crust'];
-//                    switch($crust)
-//                    {
-//                        case "stuffed":
-//                            $crustCost = 2;
-//                            break;
-//                        default:
-//                            $crustCost = 0;
-//                            break;
-//                    }
-//
-//                    $toppingsCost = $toppingsCount * 0.5;
-//
-//                    $finalBill = $sizeCost + $toppingsCost + $crustCost;
-//                    $finalBill = $finalBill + ($finalBill*$taxValue/100);
-//
-//                    $tempArticle['billAmount'] = $finalBill;
-//
-//                    $Article = $this->Articles->patchEntity($Article, $tempArticle);
-//
-//                    if ($this->Articles->save($Article)) {
-//                        $this->Flash->success(__('Your Article has been saved. Bill Amount = $'.$finalBill));
-//                        return $this->redirect(['action' => 'index']);
-//                    }
-//                    $this->Flash->error(__('Unable to add your Article.'));
-//                    }
-//            
-//           
-////        $this->set('Article', $Article);
-//           
-//    }
-    
-  
 }
 ?>
