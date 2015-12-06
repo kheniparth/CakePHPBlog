@@ -55,9 +55,12 @@ class TagsController extends AppController {
 //        $this->set(compact('tags'));
 //  	}
    public function deleteTag($id){
-		$tagsTable = TableRegistry::get('Tags');
-		$tag = $tagsTable->get($id); // Return article with id 12
-	   if ($tagsTable->delete($tag)) {
+		
+		$tag = $this->Tags->get($id, [
+			'contain' => 'Articles'
+			]);
+//	   debug($tag);
+	   if ($this->Tags->delete($tag)) {
             $this->Flash->success(__('The Tag has been deleted.'));
             return $this->redirect($this->referer());
         }

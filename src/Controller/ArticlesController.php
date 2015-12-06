@@ -7,19 +7,30 @@ use App\Controller\AppController;
 
 use Cake\ORM\TableRegistry;
 use Cake\I18n\Time;
+use Cake\Event\Event;
+
 
 
 class ArticlesController extends AppController
 {
-	var $uses = array('Post', 'Comment'); 
+	var $uses = array('Article', 'Comment'); 
 
+	public function beforeFilter(Event $event)
+    {
+        parent::beforeFilter($event);
+        $this->Auth->allow('all');
+    }
+ 
+	
 	
 	public function isAuthorized($user)
 	{
+		print($this->request->action);
 		// All registered users can add articles
 		if ($this->request->action === 'add') {
 			return true;
 		}
+		
 
 		// The owner of an article can edit and delete it
 		if (in_array($this->request->action, ['edit', 'delete'])) {
@@ -33,10 +44,18 @@ class ArticlesController extends AppController
 	}
 	
 	
-    public function admin()
+	
+	
+    public function all()
     {
-        $Articles = $this->Articles->find('all');
-        $this->set(compact('Articles'));
+        $articles = $this->Articles->find('all')->contain([
+			'Comments' => function ($q) {
+							   return $q
+									->select()
+									->where(['Comments.approved' => true]);
+							}
+				]);
+        $this->set(compact('articles'));
     }
     public function index()
     {
@@ -152,61 +171,30 @@ class ArticlesController extends AppController
         $this->set(compact('comments'));
 	}
 
-    public function edit($id)
-        {
+    public function edit($id){
 			$tagsTable = TableRegistry::get('Tags');
-            $query = $this->Articles->Tags->find('list', [
-				'keyField' => 'id',
-				'valueField' => 'value'
-			]);
-			$tags = $query->toArray();
+			$tags = $tagsTable->find('all');
 			$this->set(compact('tags'));
 
 		
-			$articlestagsTable = TableRegistry::get('ArticlesTags');
-			$query = $articlestagsTable->find('all', array('conditions' => array('article_id' => $id)));
-//			$tempTags = $articlestagsTable->find('all', array(
-//				'conditions' => array('article_id' => $id), 
-//				[ 'keyField' => 'id','valueField' => 'tag_id']
-//			));
-			$selectedAllTags = $query->toArray();
-			$this->set(compact('selectedAllTags'));
-
-		
 			$articlesTable = TableRegistry::get('Articles');
-            $article = $articlesTable->get($id);
-		
+            $article = $articlesTable->get($id, ['contain' => 'Tags']);
+
 			$tempArticle = $this->request->data;
-			
             if ($this->request->is(['post', 'put'])) {
-                $articlesTable->patchEntity($article, $this->request->data);
-				print_r($article);
-//				foreach($tempArticle['Tags'] as $tag):
-//					$query = $articlestagsTable->find('all')->where([
-//						'ArticlesTags.article_id' => $id,
-//						'ArticlesTags.tag_id' => $tag
-//					]);
-//					$t = $query->toArray();
-//					if(!empty($t)){
-//						print($tag."->".$id."pair found,");
-//					}else{
-//						$tuple = $articlestagsTable->newEntity();
-//						echo $tag." ".$id;
-//						$tuple->article_id= $id;
-//						$tuple->tag_id= $tag;					
-//						if($articlestagsTable->save($tuple)){
-//							 $this->Flash->success(__('Your tag pair has been saved.'));
-//						}
-//						$this->Flash->error(__('Unable to create relation of article and tag.'));
-//					}
-//				endforeach;
-																	  
-                if ($articlesTable->save($article)) {
-                    $this->Flash->success(__('Your article has been updated.'));
-                    return $this->redirect($this->referer());
-                }
-                $this->Flash->error(__('Unable to update your article.'));
-            }
+                $this->Articles->patchEntity($article, $this->request->data,[
+				'associated' => [
+					'Tags'
+				]
+				
+				]);
+				
+						if($this->Articles->save($article)){
+							 $this->Flash->success(__('Your tag pair has been saved.'));
+						}
+						$this->Flash->error(__('Unable to create relation of article and tag.'));
+					}
+
 
             $this->set('article', $article);
         }

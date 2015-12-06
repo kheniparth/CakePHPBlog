@@ -13,20 +13,22 @@ class TagsTable extends Table
     {
 		$this->addBehavior('Timestamp');
 
-//       $this->belongsTo('Articles', [
-//			'foreignKey' => 'article_id',
-//			]);
-		
-		$this->hasMany('Articles', [
+		$this->belongsToMany('Articles', [
             'joinTable' => 'articles_tags',
-            'foreignKey' => 'tag_id',
-            'associationForeignKey' => 'article_id'
-        ]);   
-		
-		$this->hasMany('ArticlesTags', [
-            'foreignKey' => 'tag_id',
-			'dependent' => true
+			'dependent' => true,
+
         ]);
+		
+//		$this->belongsToMany('Articles', [
+//            'joinTable' => 'articles_tags',
+//            'foreignKey' => 'tag_id',
+//            'associationForeignKey' => 'article_id'
+//        ]);   
+		
+//		$this->hasMany('ArticlesTags', [
+//            'foreignKey' => 'tag_id',
+//			'dependent' => true
+//        ]);
 		 
     }
 }

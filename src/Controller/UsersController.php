@@ -45,14 +45,21 @@ class UsersController extends AppController
 
 	public function logout()
 	{
+//		return $this->redirect($this->referer());
 		return $this->redirect($this->Auth->logout());
 	}
 
-     public function index()
+     public function dashboard()
      {
         $this->set('users', $this->Users->find('all'));
     }
 
+	 public function all()
+     {
+        $this->set('users', $this->Users->find('all'));
+    }
+
+	
     public function view($id)
     {
         $user = $this->Users->get($id);
@@ -71,6 +78,18 @@ class UsersController extends AppController
             $this->Flash->error(__('Unable to add the user.'));
         }
         $this->set('user', $user);
+    }
+	
+	public function delete($id)
+    {
+//        $this->request->allowMethod(['post', 'delete']);
+
+        $user = $this->Users->get($id);
+//		print_r($user);
+        if ($this->Users->delete($user)) {
+            $this->Flash->success(__('The User with id: {0} has been deleted.', h($id)));
+            return $this->redirect($this->referer());
+        }
     }
 
 }
