@@ -17,9 +17,9 @@ namespace Cake\ORM;
 use ArrayObject;
 use BadMethodCallException;
 use Cake\Core\App;
-use Cake\Database\Connection;
 use Cake\Database\Schema\Table as Schema;
 use Cake\Database\Type;
+use Cake\Datasource\ConnectionInterface;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\RepositoryInterface;
@@ -91,26 +91,26 @@ use RuntimeException;
  * - `buildRules(Event $event, RulesChecker $rules)`
  *   Allows listeners to modify the rules checker by adding more rules.
  *
- * - `beforeRules(Event $event, Entity $entity, ArrayObject $options, string $operation)`
+ * - `beforeRules(Event $event, EntityInterface $entity, ArrayObject $options, string $operation)`
  *   Fired before an entity is validated using the rules checker. By stopping this event,
  *   you can return the final value of the rules checking operation.
  *
- * - `afterRules(Event $event, Entity $entity, ArrayObject $options, bool $result, string $operation)`
+ * - `afterRules(Event $event, EntityInterface $entity, ArrayObject $options, bool $result, string $operation)`
  *   Fired after the rules have been checked on the entity. By stopping this event,
  *   you can return the final value of the rules checking operation.
  *
- * - `beforeSave(Event $event, Entity $entity, ArrayObject $options)`
+ * - `beforeSave(Event $event, EntityInterface $entity, ArrayObject $options)`
  *   Fired before each entity is saved. Stopping this event will abort the save
  *   operation. When the event is stopped the result of the event will be returned.
  *
- * - `afterSave(Event $event, Entity $entity, ArrayObject $options)`
+ * - `afterSave(Event $event, EntityInterface $entity, ArrayObject $options)`
  *   Fired after an entity is saved.
  *
- * - `beforeDelete(Event $event, Entity $entity, ArrayObject $options)`
+ * - `beforeDelete(Event $event, EntityInterface $entity, ArrayObject $options)`
  *   Fired before an entity is deleted. By stopping this event you will abort
  *   the delete operation.
  *
- * - `afterDelete(Event $event, Entity $entity, ArrayObject $options)`
+ * - `afterDelete(Event $event, EntityInterface $entity, ArrayObject $options)`
  *   Fired after an entity has been deleted.
  *
  * @see \Cake\Event\EventManager for reference on the events system.
@@ -161,7 +161,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     /**
      * Connection instance
      *
-     * @var \Cake\Database\Connection
+     * @var \Cake\Datasource\ConnectionInterface
      */
     protected $_connection;
 
@@ -275,7 +275,8 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
             }
         }
         $this->_eventManager = $eventManager ?: new EventManager();
-        $this->_behaviors = $behaviors ?: new BehaviorRegistry($this);
+        $this->_behaviors = $behaviors ?: new BehaviorRegistry();
+        $this->_behaviors->setTable($this);
         $this->_associations = $associations ?: new AssociationCollection();
 
         $this->initialize($config);
@@ -388,10 +389,10 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     /**
      * Returns the connection instance or sets a new one
      *
-     * @param \Cake\Database\Connection|null $conn The new connection instance
-     * @return \Cake\Database\Connection
+     * @param \Cake\Datasource\ConnectionInterface|null $conn The new connection instance
+     * @return \Cake\Datasource\ConnectionInterface
      */
-    public function connection(Connection $conn = null)
+    public function connection(ConnectionInterface $conn = null)
     {
         if ($conn === null) {
             return $this->_connection;
@@ -1622,8 +1623,6 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
      *   will be aborted. Receives the event, entity, and options.
      * - `Model.afterDelete` Fired after the delete has been successful. Receives
      *   the event, entity, and options.
-     * - `Model.afterDelete` Fired after the delete has been successful. Receives
-     *   the event, entity, and options.
      * - `Model.afterDeleteCommit` Fired after the transaction is committed for
      *   an atomic delete. Receives the event, entity, and options.
      *
@@ -1761,7 +1760,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
             return $this->_behaviors->callFinder($type, [$query, $options]);
         }
 
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             sprintf('Unknown finder method "%s"', $type)
         );
     }
@@ -1848,7 +1847,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
             return $this->_dynamicFinder($method, $args);
         }
 
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             sprintf('Unknown method "%s"', $method)
         );
     }
@@ -2192,6 +2191,41 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     public function buildRules(RulesChecker $rules)
     {
         return $rules;
+    }
+
+    /**
+     * Loads the specified associations in the passed entity or list of entities
+     * by executing extra queries in the database and merging the results in the
+     * appropriate properties.
+     *
+     * ### Example:
+     *
+     * ```
+     * $user = $usersTable->get(1);
+     * $user = $usersTable->loadInto($user, ['Articles.Tags', 'Articles.Comments']);
+     * echo $user->articles[0]->title;
+     * ```
+     *
+     * You can also load associations for multiple entities at once
+     *
+     * ### Example:
+     *
+     * ```
+     * $users = $usersTable->find()->where([...])->toList();
+     * $users = $usersTable->loadInto($users, ['Articles.Tags', 'Articles.Comments']);
+     * echo $user[1]->articles[0]->title;
+     * ```
+     *
+     * The properties for the associations to be loaded will be overwritten on each entity.
+     *
+     * @param \Cake\Datasource\EntityInterface|array $entities a single entity or list of entities
+     * @param array $contain A `contain()` compatible array.
+     * @see \Cake\ORM\Query::contain()
+     * @return \Cake\Datasource\EntityInterface|array
+     */
+    public function loadInto($entities, array $contain)
+    {
+        return (new LazyEagerLoader)->loadInto($entities, $contain, $this);
     }
 
     /**

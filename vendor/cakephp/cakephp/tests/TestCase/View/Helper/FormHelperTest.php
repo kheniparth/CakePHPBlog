@@ -92,6 +92,7 @@ class ValidateUsersTable extends Table
         'email' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
         'balance' => ['type' => 'float', 'null' => false, 'length' => 5, 'precision' => 2],
         'cost_decimal' => ['type' => 'decimal', 'null' => false, 'length' => 6, 'precision' => 3],
+        'null_decimal' => ['type' => 'decimal', 'null' => false, 'length' => null, 'precision' => null],
         'ratio' => ['type' => 'decimal', 'null' => false, 'length' => 10, 'precision' => 6],
         'population' => ['type' => 'decimal', 'null' => false, 'length' => 15, 'precision' => 0],
         'created' => ['type' => 'date', 'null' => '1', 'default' => '', 'length' => ''],
@@ -548,6 +549,40 @@ class FormHelperTest extends TestCase
     }
 
     /**
+     * Test using template vars in various templates used by input() method.
+     *
+     * @return void
+     */
+    public function testInputTemplateVars()
+    {
+        $result = $this->Form->input('text', [
+            'templates' => [
+                'input' => '<input custom="{{forinput}}" type="{{type}}" name="{{name}}"{{attrs}}/>',
+                'label' => '<label{{attrs}}>{{text}} {{forlabel}}</label>',
+                'formGroup' => '{{label}}{{forgroup}}{{input}}',
+                'inputContainer' => '<div class="input {{type}}{{required}}">{{content}}{{forcontainer}}</div>',
+            ],
+            'templateVars' => [
+                'forinput' => 'in-input',
+                'forlabel' => 'in-label',
+                'forgroup' => 'in-group',
+                'forcontainer' => 'in-container'
+            ]
+        ]);
+        $expected = [
+            'div' => ['class'],
+            'label' => ['for'],
+            'Text in-label',
+            '/label',
+            'in-group',
+            'input' => ['name', 'type' => 'text', 'id', 'custom' => 'in-input'],
+            'in-container',
+            '/div',
+        ];
+        $this->assertHtml($expected, $result);
+    }
+
+    /**
      * test the create() method
      *
      * @dataProvider requestTypeProvider
@@ -883,7 +918,7 @@ class FormHelperTest extends TestCase
             'name' => 'password', 'type' => 'password'
         ]];
         $this->assertHtml($expected, $result);
-        $this->assertNotRegExp('/<input[^<>]+[^id|name|type|value]=[^<>]*>$/', $result);
+        $this->assertNotRegExp('/<input[^<>]+[^id|name|type|value]=[^<>]*\/>$/', $result);
 
         $result = $this->Form->text('user_form');
         $expected = ['input' => [
@@ -2228,6 +2263,17 @@ class FormHelperTest extends TestCase
             '/div',
         ];
         $this->assertHtml($expected, $result);
+
+        $result = $this->Form->input('ValidateUser.null_decimal');
+        $expected = [
+            'div' => ['class'],
+            'label' => ['for'],
+            'Null Decimal',
+            '/label',
+            'input' => ['name', 'type' => 'number', 'id'],
+            '/div',
+        ];
+        $this->assertHtml($expected, $result);
     }
 
     /**
@@ -2687,6 +2733,7 @@ class FormHelperTest extends TestCase
                 'empty' => false,
                 'id' => 'prueba',
                 'required' => false,
+                'templateVars' => []
             ])
             ->will($this->returnValue('This is it!'));
         $result = $this->Form->input('prueba', [
@@ -2730,6 +2777,7 @@ class FormHelperTest extends TestCase
                 'empty' => false,
                 'id' => 'prefix-prueba',
                 'required' => false,
+                'templateVars' => []
             ])
             ->will($this->returnValue('This is it!'));
         $result = $this->Form->input('prueba', [
@@ -3498,7 +3546,7 @@ class FormHelperTest extends TestCase
             'label' => '<label{{attrs}}>{{input}}{{text}}</label>',
         ]);
         $result = $this->Form->label('Person.accept_terms', 'Accept', [
-            'input' => '<input type="checkbox" name="accept_tos" >'
+            'input' => '<input type="checkbox" name="accept_tos"/>'
         ]);
         $expected = [
             'label' => ['for' => 'person-accept-terms'],
@@ -3668,11 +3716,11 @@ class FormHelperTest extends TestCase
         ]);
         $expected = [
             'div' => ['class' => 'error-message'],
-                'ul' => [],
-                    '<li', 'Cannot be empty', '/li',
-                    '<li', 'No good!', '/li',
-                    '<li', 'Something else', '/li',
-                '/ul',
+            'ul' => [],
+            '<li', 'Cannot be empty', '/li',
+            '<li', 'No good!', '/li',
+            '<li', 'Something else', '/li',
+            '/ul',
             '/div'
         ];
         $this->assertHtml($expected, $result);
@@ -6125,11 +6173,11 @@ class FormHelperTest extends TestCase
         $result = $this->Form->input('other', ['type' => 'textarea']);
         $expected = [
             'div' => ['class' => 'input textarea'],
-                'label' => ['for' => 'other'],
-                    'Other',
-                '/label',
-                'textarea' => ['name' => 'other', 'id' => 'other', 'rows' => 5],
-                '/textarea',
+            'label' => ['for' => 'other'],
+            'Other',
+            '/label',
+            'textarea' => ['name' => 'other', 'id' => 'other', 'rows' => 5],
+            '/textarea',
             '/div'
         ];
         $this->assertHtml($expected, $result);
@@ -6137,11 +6185,11 @@ class FormHelperTest extends TestCase
         $result = $this->Form->input('stuff', ['type' => 'textarea']);
         $expected = [
             'div' => ['class' => 'input textarea'],
-                'label' => ['for' => 'stuff'],
-                    'Stuff',
-                '/label',
-                'textarea' => ['name' => 'stuff', 'maxlength' => 10, 'id' => 'stuff', 'rows' => 5],
-                '/textarea',
+            'label' => ['for' => 'stuff'],
+            'Stuff',
+            '/label',
+            'textarea' => ['name' => 'stuff', 'maxlength' => 10, 'id' => 'stuff', 'rows' => 5],
+            '/textarea',
             '/div'
         ];
         $this->assertHtml($expected, $result);
@@ -7302,11 +7350,11 @@ class FormHelperTest extends TestCase
      */
     public function testResetTemplates()
     {
-        $this->Form->templates(['input' => '<input>']);
-        $this->assertEquals('<input>', $this->Form->templater()->get('input'));
+        $this->Form->templates(['input' => '<input/>']);
+        $this->assertEquals('<input/>', $this->Form->templater()->get('input'));
 
         $this->assertNull($this->Form->resetTemplates());
-        $this->assertNotEquals('<input>', $this->Form->templater()->get('input'));
+        $this->assertNotEquals('<input/>', $this->Form->templater()->get('input'));
     }
 
     /**

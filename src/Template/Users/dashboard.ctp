@@ -26,7 +26,7 @@
 						</div>	
 				<?php } ?>
 				<div class="logout">
-					<?= $this->Html->link('Logout', ['controller' => 'Users', 'action' => 'login']) ?>
+					<?= $this->Html->link('Logout', ['controller' => 'Users', 'action' => 'logout']) ?>
 				</div>
 			</div>
 		</div>

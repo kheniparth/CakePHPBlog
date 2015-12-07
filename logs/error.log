@@ -51144,3 +51144,51 @@ Stack Trace:
 #2 {main}
 
 
+2015-12-06 22:36:09 Error: Fatal Error (1): Call to undefined method DebugKit\Controller\RequestsController::viewBuilder() in [/Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/debug_kit/src/Controller/RequestsController.php, line 51]
+Trace:
+Cake\Error\BaseErrorHandler::handleFatalError() - CORE/src/Error/BaseErrorHandler.php, line 191
+Cake\Error\BaseErrorHandler::Cake\Error\{closure}() - CORE/src/Error/BaseErrorHandler.php, line 90
+[main] - [internal], line ??
+
+
+
+2015-12-06 22:36:09 Error: [Cake\Error\FatalErrorException] Call to undefined method DebugKit\Controller\RequestsController::viewBuilder()
+Request URL: /TechMuzz/debug_kit/toolbar/c46a9583-2f39-44ad-8da5-3d1e6c23affa
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Error/BaseErrorHandler.php(90): Cake\Error\BaseErrorHandler->handleFatalError(1, 'Call to undefin...', '/Applications/M...', 51)
+#1 [internal function]: Cake\Error\BaseErrorHandler->Cake\Error\{closure}()
+#2 {main}
+
+
+2015-12-07 01:02:31 Error: Fatal Error (1): Call to undefined method DebugKit\Controller\RequestsController::viewBuilder() in [/Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/debug_kit/src/Controller/RequestsController.php, line 51]
+Trace:
+Cake\Error\BaseErrorHandler::handleFatalError() - CORE/src/Error/BaseErrorHandler.php, line 191
+Cake\Error\BaseErrorHandler::Cake\Error\{closure}() - CORE/src/Error/BaseErrorHandler.php, line 90
+[main] - [internal], line ??
+
+
+
+2015-12-07 01:02:31 Error: [Cake\Error\FatalErrorException] Call to undefined method DebugKit\Controller\RequestsController::viewBuilder()
+Request URL: /TechMuzz/debug_kit/toolbar/a462d666-c205-4d41-bb2f-9c0d507122bd
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Error/BaseErrorHandler.php(90): Cake\Error\BaseErrorHandler->handleFatalError(1, 'Call to undefin...', '/Applications/M...', 51)
+#1 [internal function]: Cake\Error\BaseErrorHandler->Cake\Error\{closure}()
+#2 {main}
+
+
+2015-12-07 01:07:17 Error: Fatal Error (1): Call to undefined method DebugKit\Controller\RequestsController::viewBuilder() in [/Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/debug_kit/src/Controller/RequestsController.php, line 51]
+Trace:
+Cake\Error\BaseErrorHandler::handleFatalError() - CORE/src/Error/BaseErrorHandler.php, line 191
+Cake\Error\BaseErrorHandler::Cake\Error\{closure}() - CORE/src/Error/BaseErrorHandler.php, line 90
+[main] - [internal], line ??
+
+
+
+2015-12-07 01:07:17 Error: [Cake\Error\FatalErrorException] Call to undefined method DebugKit\Controller\RequestsController::viewBuilder()
+Request URL: /TechMuzz/debug_kit/toolbar/4aee3a06-5e61-4f4b-b226-34a20ac52683
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Error/BaseErrorHandler.php(90): Cake\Error\BaseErrorHandler->handleFatalError(1, 'Call to undefin...', '/Applications/M...', 51)
+#1 [internal function]: Cake\Error\BaseErrorHandler->Cake\Error\{closure}()
+#2 {main}
+
+

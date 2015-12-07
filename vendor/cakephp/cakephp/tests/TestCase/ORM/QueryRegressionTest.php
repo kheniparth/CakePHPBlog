@@ -34,17 +34,17 @@ class QueryRegressionTest extends TestCase
      * @var array
      */
     public $fixtures = [
-        'core.users',
         'core.articles',
-        'core.comments',
-        'core.tags',
         'core.articles_tags',
         'core.authors',
-        'core.special_tags',
-        'core.translates',
         'core.authors_tags',
+        'core.comments',
         'core.featured_tags',
+        'core.special_tags',
+        'core.tags',
         'core.tags_translations',
+        'core.translates',
+        'core.users'
     ];
 
     /**
@@ -213,7 +213,7 @@ class QueryRegressionTest extends TestCase
      *
      * @return void
      */
-    public function testReciprocalBelongsToMany2()
+    public function testReciprocalBelongsToManyNoOverwrite()
     {
         $articles = TableRegistry::get('Articles');
         $tags = TableRegistry::get('Tags');
@@ -995,6 +995,56 @@ class QueryRegressionTest extends TestCase
     }
 
     /**
+     * Test that contain queries map types correctly.
+     *
+     * @return void
+     */
+    public function testComplexTypesInJoinedWhere()
+    {
+        $table = TableRegistry::get('Users');
+        $table->hasOne('Comments', [
+            'foreignKey' => 'user_id',
+        ]);
+        $query = $table->find()
+            ->contain('Comments')
+            ->where([
+                'Comments.updated >' => new \DateTime('2007-03-18 10:55:00')
+            ]);
+
+        $result = $query->first();
+        $this->assertNotEmpty($result);
+        $this->assertInstanceOf('Cake\I18n\Time', $result->comment->updated);
+    }
+
+    /**
+     * Test that nested contain queries map types correctly.
+     *
+     * @return void
+     */
+    public function testComplexNestedTypesInJoinedWhere()
+    {
+        $table = TableRegistry::get('Users');
+        $table->hasOne('Comments', [
+            'foreignKey' => 'user_id',
+        ]);
+        $table->Comments->belongsTo('Articles');
+        $table->Comments->Articles->belongsTo('Authors', [
+            'className' => 'Users',
+            'foreignKey' => 'author_id'
+        ]);
+
+        $query = $table->find()
+            ->contain('Comments.Articles.Authors')
+            ->where([
+                'Authors.created >' => new \DateTime('2007-03-17 01:16:00')
+            ]);
+
+        $result = $query->first();
+        $this->assertNotEmpty($result);
+        $this->assertInstanceOf('Cake\I18n\Time', $result->comment->article->author->updated);
+    }
+
+    /**
      * Tests that it is possible to use matching with dot notation
      * even when part of the part of the path in the dot notation is
      * shared for two different calls
@@ -1047,5 +1097,27 @@ class QueryRegressionTest extends TestCase
 
         $results = $query->toArray();
         $this->assertCount(5, $results);
+    }
+
+    /**
+     * Test that associations that are loaded with subqueries
+     * do not cause errors when the subquery has a limit & order clause.
+     *
+     * @return void
+     */
+    public function testEagerLoadOrderAndSubquery()
+    {
+        $table = TableRegistry::get('Articles');
+        $table->hasMany('Comments', [
+            'strategy' => 'subquery'
+        ]);
+        $query = $table->find()
+            ->select(['score' => 100])
+            ->autoFields(true)
+            ->contain(['Comments'])
+            ->limit(5)
+            ->order(['score' => 'desc']);
+        $result = $query->all();
+        $this->assertCount(3, $result);
     }
 }

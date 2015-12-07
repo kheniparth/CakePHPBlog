@@ -30,7 +30,7 @@ class RulesCheckerIntegrationTest extends TestCase
      *
      * @var array
      */
-    public $fixtures = ['core.articles', 'core.authors', 'core.tags', 'core.articles_tags'];
+    public $fixtures = ['core.articles', 'core.articles_tags', 'core.authors', 'core.tags'];
 
     /**
      * Tear down
@@ -64,10 +64,13 @@ class RulesCheckerIntegrationTest extends TestCase
         $table->association('authors')
             ->target()
             ->rulesChecker()
-            ->add(function (Entity $author, array $options) use ($table) {
-                $this->assertSame($options['repository'], $table->association('authors')->target());
-                return false;
-            }, ['errorField' => 'name', 'message' => 'This is an error']);
+            ->add(
+                function (Entity $author, array $options) use ($table) {
+                    $this->assertSame($options['repository'], $table->association('authors')->target());
+                    return false;
+                },
+                ['errorField' => 'name', 'message' => 'This is an error']
+            );
 
         $this->assertFalse($table->save($entity));
         $this->assertTrue($entity->isNew());
@@ -99,9 +102,12 @@ class RulesCheckerIntegrationTest extends TestCase
         $table->association('articles')
             ->target()
             ->rulesChecker()
-            ->add(function (Entity $entity) {
-                return false;
-            }, ['errorField' => 'title', 'message' => 'This is an error']);
+            ->add(
+                function (Entity $entity) {
+                    return false;
+                },
+                ['errorField' => 'title', 'message' => 'This is an error']
+            );
 
         $this->assertFalse($table->save($entity));
         $this->assertTrue($entity->isNew());
@@ -140,10 +146,13 @@ class RulesCheckerIntegrationTest extends TestCase
         $table->association('articles')
             ->target()
             ->rulesChecker()
-            ->add(function (Entity $entity, $options) use ($table) {
-                $this->assertSame($table, $options['_sourceTable']);
-                return $entity->title === '1';
-            }, ['errorField' => 'title', 'message' => 'This is an error']);
+            ->add(
+                function (Entity $entity, $options) use ($table) {
+                    $this->assertSame($table, $options['_sourceTable']);
+                    return $entity->title === '1';
+                },
+                ['errorField' => 'title', 'message' => 'This is an error']
+            );
 
         $this->assertFalse($table->save($entity));
         $this->assertTrue($entity->isNew());
@@ -185,9 +194,12 @@ class RulesCheckerIntegrationTest extends TestCase
         $table->association('articles')
             ->target()
             ->rulesChecker()
-            ->add(function (Entity $article) {
-                return is_numeric($article->title);
-            }, ['errorField' => 'title', 'message' => 'This is an error']);
+            ->add(
+                function (Entity $article) {
+                    return is_numeric($article->title);
+                },
+                ['errorField' => 'title', 'message' => 'This is an error']
+            );
 
         $result = $table->save($entity, ['atomic' => false]);
         $this->assertSame($entity, $result);

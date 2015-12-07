@@ -36,7 +36,7 @@ class BelongsToTest extends TestCase
      *
      * @var array
      */
-    public $fixtures = ['core.articles', 'core.comments', 'core.authors'];
+    public $fixtures = ['core.articles', 'core.authors', 'core.comments'];
 
     /**
      * Don't autoload fixtures as most tests uses mocks.
@@ -201,40 +201,6 @@ class BelongsToTest extends TestCase
         ]);
         $query->expects($this->never())->method('select');
         $association->attachTo($query, ['includeFields' => false]);
-    }
-
-    /**
-     * Tests that by passing the matching option to `attachTo` the association
-     * is joinned using `INNER`
-     *
-     * @return void
-     */
-    public function testAttachToMatching()
-    {
-        $query = $this->getMock('\Cake\ORM\Query', ['join', 'select'], [null, null]);
-        $config = [
-            'foreignKey' => 'company_id',
-            'sourceTable' => $this->client,
-            'targetTable' => $this->company,
-            'conditions' => ['Companies.is_active' => true]
-        ];
-        $association = new BelongsTo('Companies', $config);
-        $field = new IdentifierExpression('Clients.company_id');
-        $query->expects($this->once())->method('join')->with([
-            'Companies' => [
-                'conditions' => new QueryExpression([
-                    'Companies.is_active' => true,
-                    ['Companies.id' => $field]
-                ], $this->companiesTypeMap),
-                'table' => 'companies',
-                'type' => 'INNER'
-            ]
-        ]);
-        $query->expects($this->once())->method('select')->with([
-            'Companies__id' => 'Companies.id',
-            'Companies__company_name' => 'Companies.company_name'
-        ]);
-        $association->attachTo($query, ['matching' => true]);
     }
 
     /**

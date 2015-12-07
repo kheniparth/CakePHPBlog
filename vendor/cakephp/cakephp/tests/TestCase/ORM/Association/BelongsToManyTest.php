@@ -193,6 +193,32 @@ class BelongsToManyTest extends TestCase
     }
 
     /**
+     * Tests the junction method custom keys
+     *
+     * @return void
+     */
+    public function testJunctionCustomKeys()
+    {
+        $this->article->belongsToMany('Tags', [
+            'joinTable' => 'articles_tags',
+            'foreignKey' => 'article',
+            'targetForeignKey' => 'tag'
+        ]);
+        $this->tag->belongsToMany('Articles', [
+            'joinTable' => 'articles_tags',
+            'foreignKey' => 'tag',
+            'targetForeignKey' => 'article'
+        ]);
+        $junction = $this->article->association('Tags')->junction();
+        $this->assertEquals('article', $junction->association('Articles')->foreignKey());
+        $this->assertEquals('article', $this->article->association('ArticlesTags')->foreignKey());
+
+        $junction = $this->tag->association('Articles')->junction();
+        $this->assertEquals('tag', $junction->association('Tags')->foreignKey());
+        $this->assertEquals('tag', $this->tag->association('ArticlesTags')->foreignKey());
+    }
+
+    /**
      * Tests it is possible to set the table name for the join table
      *
      * @return void
@@ -630,7 +656,7 @@ class BelongsToManyTest extends TestCase
             ->method('delete')
             ->with($jointEntities[1]);
 
-        $assoc->unlink($entity, $tags, false);
+        $assoc->unlink($entity, $tags, ['cleanProperty' => false]);
         $this->assertEquals($tags, $entity->get('test'));
     }
 
@@ -826,6 +852,69 @@ class BelongsToManyTest extends TestCase
         $assoc->replaceLinks($entity, $tags, $options + ['associated' => false]);
         $this->assertSame($tags, $entity->tags);
         $this->assertFalse($entity->dirty('tags'));
+    }
+
+
+    /**
+     * Tests that replaceLinks() will contain() the target table when
+     * there are conditions present on the association.
+     *
+     * @return void
+     */
+    public function testReplaceLinkWithConditions()
+    {
+        $connection = ConnectionManager::get('test');
+        $joint = $this->getMock(
+            '\Cake\ORM\Table',
+            ['find'],
+            [['alias' => 'ArticlesTags', 'connection' => $connection]]
+        );
+        $config = [
+            'sourceTable' => $this->article,
+            'targetTable' => $this->tag,
+            'through' => $joint,
+            'joinTable' => 'tags_articles',
+            'conditions' => ['Tags.id' => 'blah'],
+        ];
+        $assoc = $this->getMock(
+            '\Cake\ORM\Association\BelongsToMany',
+            ['_collectJointEntities'],
+            ['tags', $config]
+        );
+        $assoc->junction();
+
+        $query1 = $this->getMock(
+            '\Cake\ORM\Query',
+            ['where', 'andWhere', 'addDefaultTypes', 'contain'],
+            [$connection, $joint]
+        );
+        $query1->expects($this->at(0))
+            ->method('where')
+            ->will($this->returnSelf());
+        $query1->expects($this->at(1))
+            ->method('where')
+            ->will($this->returnSelf());
+        $query1->expects($this->at(2))
+            ->method('contain')
+            ->with('Tags')
+            ->will($this->returnSelf());
+        $query1->expects($this->at(3))
+            ->method('andWhere')
+            ->with($config['conditions'])
+            ->will($this->returnSelf());
+        $query1->setResult(new \ArrayIterator([]));
+
+        $joint->expects($this->at(0))->method('find')
+            ->with('all')
+            ->will($this->returnValue($query1));
+
+        $entity = new Entity(['id' => 1, 'test' => []]);
+
+        $assoc->expects($this->once())->method('_collectJointEntities')
+            ->with($entity, [])
+            ->will($this->returnValue([]));
+
+        $assoc->replaceLinks($entity, [], ['associated' => false]);
     }
 
     /**

@@ -636,8 +636,10 @@ class QueryTest extends TestCase
 
     /**
      * Tests that passing an empty array type to any where condition will not
-     * result in an error, but in an empty result set
+     * result in a SQL error, but an internal exception
      *
+     * @expectedException Cake\Database\Exception
+     * @expectedExceptionMessage Impossible to generate condition with empty list of values for field
      * @return void
      */
     public function testSelectWhereArrayTypeEmpty()
@@ -648,7 +650,24 @@ class QueryTest extends TestCase
             ->from('comments')
             ->where(['id' => []], ['id' => 'integer[]'])
             ->execute();
-        $this->assertCount(0, $result);
+    }
+
+    /**
+     * Tests exception message for impossible condition when using an expression
+     * @expectedException Cake\Database\Exception
+     * @expectedExceptionMessage with empty list of values for field (SELECT 1)
+     * @return void
+     */
+    public function testSelectWhereArrayTypeEmptyWithExpression()
+    {
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(function ($exp, $q) {
+                return $exp->in($q->newExpr('SELECT 1'), []);
+            })
+            ->execute();
     }
 
     /**
@@ -1663,6 +1682,21 @@ class QueryTest extends TestCase
         $result = $query
             ->select(['id', 'author_id'])
             ->distinct(['author_id'])
+            ->from(['a' => 'articles'])
+            ->order(['author_id' => 'ASC'])
+            ->execute();
+        $this->assertCount(2, $result);
+        $results = $result->fetchAll('assoc');
+        $this->assertEquals(['id', 'author_id'], array_keys($results[0]));
+        $this->assertEquals(
+            [3, 1],
+            collection($results)->sortBy('author_id')->extract('author_id')->toList()
+        );
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id', 'author_id'])
+            ->distinct('author_id')
             ->from(['a' => 'articles'])
             ->order(['author_id' => 'ASC'])
             ->execute();
@@ -2816,6 +2850,42 @@ class QueryTest extends TestCase
             (new \DateTime($result->fetchAll('assoc')[0]['d']))->format('U'),
             1
         );
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select([
+                'd' => $query->func()->datePart('day', 'created'),
+                'm' => $query->func()->datePart('month', 'created'),
+                'y' => $query->func()->datePart('year', 'created'),
+                'de' => $query->func()->extract('day', 'created'),
+                'me' => $query->func()->extract('month', 'created'),
+                'ye' => $query->func()->extract('year', 'created'),
+                'wd' => $query->func()->weekday('created'),
+                'dow' => $query->func()->dayOfWeek('created'),
+                'addDays' => $query->func()->dateAdd('created', 2, 'day'),
+                'substractYears' => $query->func()->dateAdd('created', -2, 'year')
+            ])
+            ->from('comments')
+            ->where(['created' => '2007-03-18 10:45:23'])
+            ->execute()
+            ->fetchAll('assoc');
+        $result[0]['m'] = ltrim($result[0]['m'], '0');
+        $result[0]['me'] = ltrim($result[0]['me'], '0');
+        $result[0]['addDays'] = substr($result[0]['addDays'], 0, 10);
+        $result[0]['substractYears'] = substr($result[0]['substractYears'], 0, 10);
+        $expected = [
+            'd' => '18',
+            'm' => '3',
+            'y' => '2007',
+            'de' => '18',
+            'me' => '3',
+            'ye' => '2007',
+            'wd' => '1', // Sunday
+            'dow' => '1',
+            'addDays' => '2007-03-20',
+            'substractYears' => '2005-03-18'
+        ];
+        $this->assertEquals($expected, $result[0]);
     }
 
     /**
@@ -3384,6 +3454,38 @@ class QueryTest extends TestCase
         $list = $result->fetchAll('assoc');
         $this->assertCount(3, $list);
         $result->closeCursor();
+    }
+
+    /**
+     * Test that cloning goes deep.
+     *
+     * @return void
+     */
+    public function testDeepClone()
+    {
+        $query = new Query($this->connection);
+        $query->select(['id', 'title' => $query->func()->concat(['title' => 'literal', 'test'])])
+            ->from('articles')
+            ->where(['Articles.id' => 1])
+            ->offset(10)
+            ->limit(1)
+            ->order(['Articles.id' => 'DESC']);
+        $dupe = clone $query;
+
+        $this->assertEquals($query->clause('where'), $dupe->clause('where'));
+        $this->assertNotSame($query->clause('where'), $dupe->clause('where'));
+        $dupe->where(['Articles.title' => 'thinger']);
+        $this->assertNotEquals($query->clause('where'), $dupe->clause('where'));
+
+        $this->assertNotSame(
+            $query->clause('select')['title'],
+            $dupe->clause('select')['title']
+        );
+        $this->assertEquals($query->clause('order'), $dupe->clause('order'));
+        $this->assertNotSame($query->clause('order'), $dupe->clause('order'));
+
+        $query->order(['Articles.title' => 'ASC']);
+        $this->assertNotEquals($query->clause('order'), $dupe->clause('order'));
     }
 
     /**

@@ -98,12 +98,12 @@ class MarshallerTest extends TestCase
 {
 
     public $fixtures = [
-        'core.tags',
-        'core.articles_tags',
         'core.articles',
-        'core.users',
+        'core.articles_tags',
         'core.comments',
-        'core.special_tags'
+        'core.special_tags',
+        'core.tags',
+        'core.users'
     ];
 
     /**
@@ -264,7 +264,7 @@ class MarshallerTest extends TestCase
         $result = $marshall->one($data, []);
 
         $this->assertSame($data['title'], $result->title);
-        $this->assertSame($data['author_id'], $result->author_id, 'No cast on bad data.');
+        $this->assertNull($result->author_id, 'No cast on bad data.');
         $this->assertSame($data['created'], $result->created, 'No cast on bad data.');
     }
 
@@ -488,6 +488,52 @@ class MarshallerTest extends TestCase
             $result->tags[0]->_joinData->active,
             '_joinData should be an entity.'
         );
+    }
+
+    /**
+     * Test that the onlyIds option restricts to only accepting ids for belongs to many associations.
+     *
+     * @return void
+     */
+    public function testOneBelongsToManyOnlyIdsRejectArray()
+    {
+        $data = [
+            'title' => 'My title',
+            'body' => 'My content',
+            'author_id' => 1,
+            'tags' => [
+                ['tag' => 'news'],
+                ['tag' => 'cakephp'],
+            ],
+        ];
+        $marshall = new Marshaller($this->articles);
+        $result = $marshall->one($data, [
+            'associated' => ['Tags' => ['onlyIds' => true]]
+        ]);
+        $this->assertEmpty($result->tags, 'Only ids should be marshalled.');
+    }
+
+    /**
+     * Test that the onlyIds option restricts to only accepting ids for belongs to many associations.
+     *
+     * @return void
+     */
+    public function testOneBelongsToManyOnlyIdsWithIds()
+    {
+        $data = [
+            'title' => 'My title',
+            'body' => 'My content',
+            'author_id' => 1,
+            'tags' => [
+                '_ids' => [1, 2],
+                ['tag' => 'news'],
+            ],
+        ];
+        $marshall = new Marshaller($this->articles);
+        $result = $marshall->one($data, [
+            'associated' => ['Tags' => ['onlyIds' => true]]
+        ]);
+        $this->assertCount(2, $result->tags, 'Ids should be marshalled.');
     }
 
     /**
@@ -808,7 +854,7 @@ class MarshallerTest extends TestCase
      *
      * @return void
      */
-    public function testHasManyWithIds()
+    public function testOneHasManyWithIds()
     {
         $data = [
             'title' => 'article',
@@ -826,11 +872,57 @@ class MarshallerTest extends TestCase
     }
 
     /**
+     * Test that the onlyIds option restricts to only accepting ids for hasmany associations.
+     *
+     * @return void
+     */
+    public function testOneHasManyOnlyIdsRejectArray()
+    {
+        $data = [
+            'title' => 'article',
+            'body' => 'some content',
+            'comments' => [
+                ['comment' => 'first comment'],
+                ['comment' => 'second comment'],
+            ]
+        ];
+
+        $marshaller = new Marshaller($this->articles);
+        $article = $marshaller->one($data, [
+            'associated' => ['Comments' => ['onlyIds' => true]]
+        ]);
+        $this->assertEmpty($article->comments);
+    }
+
+    /**
+     * Test that the onlyIds option restricts to only accepting ids for hasmany associations.
+     *
+     * @return void
+     */
+    public function testOneHasManyOnlyIdsWithIds()
+    {
+        $data = [
+            'title' => 'article',
+            'body' => 'some content',
+            'comments' => [
+                '_ids' => [1, 2],
+                ['comment' => 'first comment'],
+            ]
+        ];
+
+        $marshaller = new Marshaller($this->articles);
+        $article = $marshaller->one($data, [
+            'associated' => ['Comments' => ['onlyIds' => true]]
+        ]);
+        $this->assertCount(2, $article->comments);
+    }
+
+    /**
      * Test HasMany association with invalid data
      *
      * @return void
      */
-    public function testHasManyInvalidData()
+    public function testOneHasManyInvalidData()
     {
         $data = [
             'title' => 'new title',
@@ -987,6 +1079,14 @@ class MarshallerTest extends TestCase
             'title' => 'Haz tags',
             'body' => 'Some content here',
             'tags' => ['_ids' => null]
+        ];
+        $result = $marshall->one($data, ['associated' => ['Tags']]);
+        $this->assertCount(0, $result->tags);
+
+        $data = [
+            'title' => 'Haz tags',
+            'body' => 'Some content here',
+            'tags' => ['_ids' => []]
         ];
         $result = $marshall->one($data, ['associated' => ['Tags']]);
         $this->assertCount(0, $result->tags);
@@ -1503,6 +1603,68 @@ class MarshallerTest extends TestCase
         ];
         $result = $marshall->merge($entity, $data, ['associated' => ['Tags']]);
         $this->assertCount(0, $result->tags);
+    }
+
+    /**
+     * Test that the ids option restricts to only accepting ids for belongs to many associations.
+     *
+     * @return void
+     */
+    public function testMergeBelongsToManyOnlyIdsRejectArray()
+    {
+        $entity = new Entity([
+            'title' => 'Haz tags',
+            'body' => 'Some content here',
+            'tags' => [
+                new Entity(['id' => 1, 'name' => 'Cake']),
+                new Entity(['id' => 2, 'name' => 'PHP'])
+            ]
+        ]);
+
+        $data = [
+            'title' => 'Haz moar tags',
+            'tags' => [
+                ['name' => 'new'],
+                ['name' => 'awesome']
+            ]
+        ];
+        $entity->accessible('*', true);
+        $marshall = new Marshaller($this->articles);
+        $result = $marshall->merge($entity, $data, [
+            'associated' => ['Tags' => ['onlyIds' => true]]
+        ]);
+        $this->assertCount(0, $result->tags);
+    }
+
+    /**
+     * Test that the ids option restricts to only accepting ids for belongs to many associations.
+     *
+     * @return void
+     */
+    public function testMergeBelongsToManyOnlyIdsWithIds()
+    {
+        $entity = new Entity([
+            'title' => 'Haz tags',
+            'body' => 'Some content here',
+            'tags' => [
+                new Entity(['id' => 1, 'name' => 'Cake']),
+                new Entity(['id' => 2, 'name' => 'PHP'])
+            ]
+        ]);
+
+        $data = [
+            'title' => 'Haz moar tags',
+            'tags' => [
+                '_ids' => [3]
+            ]
+        ];
+        $entity->accessible('*', true);
+        $marshall = new Marshaller($this->articles);
+        $result = $marshall->merge($entity, $data, [
+            'associated' => ['Tags' => ['ids' => true]]
+        ]);
+        $this->assertCount(1, $result->tags);
+        $this->assertEquals('tag3', $result->tags[0]->name);
     }
 
     /**

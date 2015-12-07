@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
 	<div class="row">
 		<div class="menu">
 			<? if($this->request->session()->read('Auth.User.id') > 0){ $this->request->session()->read('Auth.User')?>
@@ -24,7 +24,7 @@
 							</div>	
 					<?php } ?>
 					<div class="logout">
-						<?= $this->Html->link('Logout', ['controller' => 'Users', 'action' => 'login']) ?>
+						<?= $this->Html->link('Logout', ['controller' => 'Users', 'action' => 'logout']) ?>
 					</div>
 			<?
 					}else{
@@ -33,7 +33,7 @@
 			?>
 		</div>
 	</div>
-
+	
 	<?php foreach($articles as $article): ?>
 		<div class="row">
 			<div class="articleCotainer">
