@@ -26,15 +26,20 @@ $cakeDescription = 'TechMuzz';
     </title>
     <?= $this->Html->meta('icon') ?>
 
-    <?= $this->Html->css('bootstrap.min.css') ?>
-    <?= $this->Html->css('cake.css') ?>
+	    <?= $this->Html->css('bootstrap.min.css') ?>
+	    <?= $this->Html->css('main.css') ?>
+	    <?= $this->Html->css('w3.css') ?>
 
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
     <?= $this->fetch('script') ?>
 </head>
 <body>
+	
     <section class="container clearfix">
+		<header>
+		<?= "<h1>".$this->Html->link('TechMuzz', ['controller' => 'articles', 'action' => 'all'])."</h1>" ?>
+	</header>
         <?= $this->fetch('content') ?>
     </section>
     <footer>

@@ -51192,3 +51192,178 @@ Stack Trace:
 #2 {main}
 
 
+2015-12-07 02:09:19 Error: [Cake\Routing\Exception\MissingControllerException] Controller class Img could not be found.
+Exception Attributes: array (
+  'class' => 'Img',
+  'plugin' => NULL,
+  'prefix' => NULL,
+  '_ext' => NULL,
+)
+Request URL: /TechMuzz/img/bg.jpg
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/webroot/index.php(37): Cake\Routing\Dispatcher->dispatch(Object(Cake\Network\Request), Object(Cake\Network\Response))
+#1 {main}
+
+
+2015-12-07 02:11:56 Error: Fatal Error (1): Call to a member function link() on null in [/Applications/MAMP/htdocs/TechMuzz/src/Template/Layout/default.ctp, line 37]
+Trace:
+Cake\Error\BaseErrorHandler::handleFatalError() - CORE/src/Error/BaseErrorHandler.php, line 209
+Cake\Error\BaseErrorHandler::Cake\Error\{closure}() - CORE/src/Error/BaseErrorHandler.php, line 92
+[main] - [internal], line ??
+
+
+
+2015-12-07 02:11:56 Error: [Cake\Error\FatalErrorException] Call to a member function link() on null
+Request URL: /TechMuzz/users/dashboard
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Error/BaseErrorHandler.php(92): Cake\Error\BaseErrorHandler->handleFatalError(1, 'Call to a membe...', '/Applications/M...', 37)
+#1 [internal function]: Cake\Error\BaseErrorHandler->Cake\Error\{closure}()
+#2 {main}
+
+
+2015-12-07 02:28:07 Error: [Cake\Controller\Exception\MissingActionException] Action ArticlesController::logout() could not be found, or is not accessible.
+Exception Attributes: array (
+  'controller' => 'ArticlesController',
+  'action' => 'logout',
+  'prefix' => '',
+  'plugin' => NULL,
+)
+Request URL: /TechMuzz/articles/logout/controller/Users
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Routing/Dispatcher.php(114): Cake\Controller\Controller->invokeAction()
+#1 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Routing/Dispatcher.php(87): Cake\Routing\Dispatcher->_invoke(Object(App\Controller\ArticlesController))
+#2 /Applications/MAMP/htdocs/TechMuzz/webroot/index.php(37): Cake\Routing\Dispatcher->dispatch(Object(Cake\Network\Request), Object(Cake\Network\Response))
+#3 {main}
+
+
+2015-12-07 03:01:51 Warning: Warning (2): Missing argument 1 for App\Controller\ArticlesController::comments() in [/Applications/MAMP/htdocs/TechMuzz/src/Controller/ArticlesController.php, line 168]
+Trace:
+Cake\Error\BaseErrorHandler::handleError() - CORE/src/Error/BaseErrorHandler.php, line 140
+App\Controller\ArticlesController::comments() - APP/Controller/ArticlesController.php, line 168
+Cake\Controller\Controller::invokeAction() - CORE/src/Controller/Controller.php, line 429
+Cake\Routing\Dispatcher::_invoke() - CORE/src/Routing/Dispatcher.php, line 114
+Cake\Routing\Dispatcher::dispatch() - CORE/src/Routing/Dispatcher.php, line 87
+[main] - ROOT/webroot/index.php, line 37
+
+
+
+2015-12-07 03:02:22 Warning: Warning (2): Missing argument 1 for App\Controller\ArticlesController::comments() in [/Applications/MAMP/htdocs/TechMuzz/src/Controller/ArticlesController.php, line 168]
+Trace:
+Cake\Error\BaseErrorHandler::handleError() - CORE/src/Error/BaseErrorHandler.php, line 140
+App\Controller\ArticlesController::comments() - APP/Controller/ArticlesController.php, line 168
+Cake\Controller\Controller::invokeAction() - CORE/src/Controller/Controller.php, line 429
+Cake\Routing\Dispatcher::_invoke() - CORE/src/Routing/Dispatcher.php, line 114
+Cake\Routing\Dispatcher::dispatch() - CORE/src/Routing/Dispatcher.php, line 87
+[main] - ROOT/webroot/index.php, line 37
+
+
+
+2015-12-07 03:30:52 Error: [Cake\Controller\Exception\MissingActionException] Action UsersController::index() could not be found, or is not accessible.
+Exception Attributes: array (
+  'controller' => 'UsersController',
+  'action' => 'index',
+  'prefix' => '',
+  'plugin' => NULL,
+)
+Request URL: /TechMuzz/users/
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Routing/Dispatcher.php(114): Cake\Controller\Controller->invokeAction()
+#1 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Routing/Dispatcher.php(87): Cake\Routing\Dispatcher->_invoke(Object(App\Controller\UsersController))
+#2 /Applications/MAMP/htdocs/TechMuzz/webroot/index.php(37): Cake\Routing\Dispatcher->dispatch(Object(Cake\Network\Request), Object(Cake\Network\Response))
+#3 {main}
+
+
+2015-12-07 03:36:25 Error: [Cake\Routing\Exception\MissingControllerException] Controller class Img could not be found.
+Exception Attributes: array (
+  'class' => 'Img',
+  'plugin' => NULL,
+  'prefix' => NULL,
+  '_ext' => NULL,
+)
+Request URL: /TechMuzz/img/bg.jpg
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/webroot/index.php(37): Cake\Routing\Dispatcher->dispatch(Object(Cake\Network\Request), Object(Cake\Network\Response))
+#1 {main}
+
+
+2015-12-07 03:36:48 Error: [Cake\Routing\Exception\MissingControllerException] Controller class Img could not be found.
+Exception Attributes: array (
+  'class' => 'Img',
+  'plugin' => NULL,
+  'prefix' => NULL,
+  '_ext' => NULL,
+)
+Request URL: /TechMuzz/img/bg.jpg
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/webroot/index.php(37): Cake\Routing\Dispatcher->dispatch(Object(Cake\Network\Request), Object(Cake\Network\Response))
+#1 {main}
+
+
+2015-12-07 03:37:24 Error: [Cake\Routing\Exception\MissingControllerException] Controller class Img could not be found.
+Exception Attributes: array (
+  'class' => 'Img',
+  'plugin' => NULL,
+  'prefix' => NULL,
+  '_ext' => NULL,
+)
+Request URL: /TechMuzz/img/bg.jpg
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/webroot/index.php(37): Cake\Routing\Dispatcher->dispatch(Object(Cake\Network\Request), Object(Cake\Network\Response))
+#1 {main}
+
+
+2015-12-07 06:02:15 Error: Fatal Error (4): syntax error, unexpected 'foreach' (T_FOREACH) in [/Applications/MAMP/htdocs/TechMuzz/src/Template/Articles/all.ctp, line 53]
+Trace:
+Cake\Error\BaseErrorHandler::handleFatalError() - CORE/src/Error/BaseErrorHandler.php, line 209
+Cake\Error\BaseErrorHandler::Cake\Error\{closure}() - CORE/src/Error/BaseErrorHandler.php, line 92
+[main] - [internal], line ??
+
+
+
+2015-12-07 06:02:16 Error: [Cake\Error\FatalErrorException] syntax error, unexpected 'foreach' (T_FOREACH)
+Request URL: /TechMuzz/articles/all
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Error/BaseErrorHandler.php(92): Cake\Error\BaseErrorHandler->handleFatalError(4, 'syntax error, u...', '/Applications/M...', 53)
+#1 [internal function]: Cake\Error\BaseErrorHandler->Cake\Error\{closure}()
+#2 {main}
+
+
+2015-12-07 06:03:02 Error: Fatal Error (4): syntax error, unexpected 'foreach' (T_FOREACH) in [/Applications/MAMP/htdocs/TechMuzz/src/Template/Articles/all.ctp, line 53]
+Trace:
+Cake\Error\BaseErrorHandler::handleFatalError() - CORE/src/Error/BaseErrorHandler.php, line 209
+Cake\Error\BaseErrorHandler::Cake\Error\{closure}() - CORE/src/Error/BaseErrorHandler.php, line 92
+[main] - [internal], line ??
+
+
+
+2015-12-07 06:03:02 Error: [Cake\Error\FatalErrorException] syntax error, unexpected 'foreach' (T_FOREACH)
+Request URL: /TechMuzz/articles/all
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Error/BaseErrorHandler.php(92): Cake\Error\BaseErrorHandler->handleFatalError(4, 'syntax error, u...', '/Applications/M...', 53)
+#1 [internal function]: Cake\Error\BaseErrorHandler->Cake\Error\{closure}()
+#2 {main}
+
+
+2015-12-07 06:54:26 Error: [PDOException] SQLSTATE[23000]: Integrity constraint violation: 1052 Column 'id' in where clause is ambiguous
+Request URL: /TechMuzz/articles/view/1
+Stack Trace:
+#0 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Database/Statement/MysqlStatement.php(36): PDOStatement->execute(NULL)
+#1 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Database/Statement/StatementDecorator.php(171): Cake\Database\Statement\MysqlStatement->execute(NULL)
+#2 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Database/Log/LoggingStatement.php(56): Cake\Database\Statement\StatementDecorator->execute(NULL)
+#3 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Database/Connection.php(270): Cake\Database\Log\LoggingStatement->execute()
+#4 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Database/Query.php(174): Cake\Database\Connection->run(Object(Cake\ORM\Query))
+#5 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/ORM/Query.php(872): Cake\Database\Query->execute()
+#6 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Datasource/QueryTrait.php(272): Cake\ORM\Query->_execute()
+#7 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/ORM/Query.php(823): Cake\ORM\Query->_all()
+#8 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Datasource/QueryTrait.php(131): Cake\ORM\Query->all()
+#9 /Applications/MAMP/htdocs/TechMuzz/src/Template/Articles/view.ctp(40): Cake\ORM\Query->getIterator()
+#10 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/View/View.php(971): include('/Applications/M...')
+#11 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/View/View.php(931): Cake\View\View->_evaluate('/Applications/M...', Array)
+#12 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/View/View.php(579): Cake\View\View->_render('/Applications/M...')
+#13 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Controller/Controller.php(611): Cake\View\View->render(NULL, NULL)
+#14 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Routing/Dispatcher.php(120): Cake\Controller\Controller->render()
+#15 /Applications/MAMP/htdocs/TechMuzz/vendor/cakephp/cakephp/src/Routing/Dispatcher.php(87): Cake\Routing\Dispatcher->_invoke(Object(App\Controller\ArticlesController))
+#16 /Applications/MAMP/htdocs/TechMuzz/webroot/index.php(37): Cake\Routing\Dispatcher->dispatch(Object(Cake\Network\Request), Object(Cake\Network\Response))
+#17 {main}
+
+

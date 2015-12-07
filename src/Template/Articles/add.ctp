@@ -2,36 +2,35 @@
 	<div class="container-fluid">        
 		<div class="row">
 			<div class="menu">
-				<? if($this->request->session()->read('Auth.User.id') > 0){ $this->request->session()->read('Auth.User')?>
-
-						<div class="customLink">
+				<? if($this->request->session()->read('Auth.User.id') > 0){ ?>
+						<div class="dashboard col-sm-2">
 							<?= $this->Html->link('Dashboard', ['controller' => 'users', 'action' => 'dashboard']) ?>
 
 						</div>
-						<div class="articles">
+						<div class="articles col-sm-2">
 							<?= $this->Html->link('Posts', ['controller' => 'users','action' => 'posts']) ?>
 						</div>
 						<?php 
 							if($this->request->session()->read('Auth.User.role') == 'admin'){ 
 						?>
-								<div class="users">
+								<div class="users col-sm-2">
 									<?= $this->Html->link('Users', ['controller' => 'users', 'action' => 'all']) ?>
 								</div>
-								<div class="comments">
+								<div class="comments col-sm-2">
 									<?= $this->Html->link('Comments', ['controller' => 'Comments', 'action' => 'index']) ?>
 								</div>
-								<div class="tags">
+								<div class="tags col-sm-2">
 									<?= $this->Html->link('Tags', ['controller' => 'Tags','action' => 'index']) ?>
 								</div>	
 						<?php } ?>
-						<div class="logout">
+						<div class="logout col-sm-2">
 							<?= $this->Html->link('Logout', ['controller' => 'Users', 'action' => 'logout']) ?>
 						</div>
-				<?
-						}else{
-							echo $this->Html->link('Login', ['controller' => 'Users', 'action' => 'login']); 
-						}
-				?>
+				<?	}else{ ?>
+						<div class="login col-sm-2">
+						<?= $this->Html->link('Login', ['controller' => 'Users', 'action' => 'login']) ?>
+						</div>
+				<?	} ?>
 			</div>
 		</div>
 		<div class="row" >
@@ -42,14 +41,7 @@
                 echo $this->Form->input('content', ['rows' => '15']);
                 echo $this->Form->input('publish', array('type' => 'checkbox', 'name' => 'publish'));
                 echo $this->Form->input('comments', array('type' => 'checkbox', 'name' => 'comments'));
-				echo $this->Form->label(__('Tags',true));
-
-//				foreach($tags as $id=>$tag):
-//						echo $this->Form->input('Tag',array(
-//														'options' => $tags,
-//														'type' => 'checkbox',
-//													)); 
-//				endforeach;
+				
 				echo $this->Form->input("Tags", array("multiple" => "checkbox", "options" => $tags));
 
                 echo $this->Form->button(__('Save'));
